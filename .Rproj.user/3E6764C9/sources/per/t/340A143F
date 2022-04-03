@@ -3,7 +3,7 @@
     "path": "C:/Users/gcons/Desktop/pa_3/README.Rmd",
     "project_path": "README.Rmd",
     "type": "r_markdown",
-    "hash": "466379063",
+    "hash": "988881184",
     "contents": "",
     "dirty": false,
     "created": 1648929144028.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "25,0",
-        "scrollLine": "22"
+        "cursorPosition": "112,25",
+        "scrollLine": "93"
     },
     "folds": "",
-    "lastKnownWriteTime": 1649012701,
+    "lastKnownWriteTime": 1649023653,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1649012701349,
+    "last_content_update": 1649023653376,
     "read_only": false,
     "read_only_alternatives": []
 }
