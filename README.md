@@ -39,10 +39,10 @@ library("stringr")
     tier in which this measurement is located (i.e., second tier of the
     textgrid). The same for the following line, “voffset = Get end
     point: 2,2”, with the exception that this time, it’s about the end
-    of the vowel (as maked on the textgrid). The third line of code,
+    of the vowel (as marked on the textgrid). The third line of code,
     “durationV = voffset - vonset” simply calculates the duration of the
     vowel through a substraction of the lower value (i.e., vonset) from
-    the higher value (i.e., voffset)
+    the higher value (i.e., voffset).
 
 2.  The general outline of the script can be summarized as follows:
 
@@ -64,13 +64,13 @@ library("stringr")
     tl.
 -   Finally, we are telling the code to *print the results to window and
     save to.csv file*, which is coding lingo for *just save the values
-    that you’ve been working on calculating in a specific file that as
+    that you’ve been working on calculating in a specific file that has
     the .csv format*
 
 1.  The first difference between the pa2 and pa3 is that for pa2, the
     textgrid contained only one tier (in which we included only the word
-    and a digit representing the stress syllable). For this pa3, we have
-    three tiers. Fr pa2, we recorded all the words in one file and
+    and a digit representing the stressed syllable). For this pa3, we
+    have three tiers. For pa2, we recorded all the words in one file and
     segmented them, but then we used the code to take the segmented
     words and create individual files (wav and textgrid) for each one of
     them. So, we ended up with a *segmented* folder that contained
@@ -80,13 +80,20 @@ library("stringr")
     use a code to create another folder that had a wav and a textgrid
     file for each one of the recordings. Then, for pa2, we had to use
     another script to extract the values that we wanted for each
-    individual word. I think there are advantages and disadvantages for
-    both. I think the script we used for pa3 makes more sense if we have
-    longer bits of data, such as interviews, and you are trying to
-    extract the values from the data directly. However, I think
-    sometimes it’s good to have all the data elements segmented
-    separately so you can look at them individually. \# Load and read
-    vowel data
+    individual word.
+
+I think there are advantages and disadvantages for both. I think the
+script we used for pa3 makes more sense if we have longer bits of data,
+such as interviews in which participants are spontaneously producing
+data (aka we are not controlling what they say). Let’s say we wanted to
+extract all the “a” vowels that the participant produces. I think the
+type of script we used for pa3 might make more sense. But, if we were to
+have different participants produce the same data, a script like the one
+for pa2 might make more sense, because then we could compare the
+segmented data across participants (e.g., look at everyone’s production
+of the vowel “a” in *casa*). Ultimately, not sure if these are actual
+advantages or disavantages, but these are some of the things I can think
+of. \# Load and read vowel data
 
 ``` r
 here("data")
@@ -165,11 +172,11 @@ my_data <- read_csv(here("data", "vowel_data.csv"))
 # Manipulate dataframe to calculate F1/F2 centroids and Trajectory Lengths
 
 ``` r
-f<-select(my_data,vowel, language,f1_cent,f2_cent,tl)
+vowels<-select(my_data,vowel, language,f1_cent,f2_cent,tl)
 ```
 
 ``` r
-f_calc <- f%>% 
+vowels_calc <- vowels%>% 
   group_by(vowel,language) %>% 
   summarize(f1_mean = mean(f1_cent), f1_sd = sd(f1_cent),
             f2_mean = mean(f2_cent), f2_sd = sd (f2_cent), 
@@ -178,12 +185,12 @@ f_calc <- f%>%
 
     ## `summarise()` has grouped output by 'vowel'. You can override using the `.groups` argument.
 
-## However, if we wanted to have the values separated into three distinct categories/groups, such as (1) F1 centroid, (2) F2 centroid, and (3) Trajectory Length, we could also do this:
+## However, if we wanted to have the average values separated into three distinct categories/groups, such as (1) F1 centroid, (2) F2 centroid, and (3) Trajectory Length, we could also do this:
 
 ### F1 mean
 
 ``` r
-f1_mean <- f%>% 
+f1_mean <- vowels%>% 
   group_by(vowel,language) %>% 
   summarize(f1_mean = mean(f1_cent)) %>% 
   pivot_wider(names_from = language,
@@ -195,7 +202,7 @@ f1_mean <- f%>%
 ### F2 mean
 
 ``` r
-f2_mean <- f%>% 
+f2_mean <- vowels%>% 
   group_by(vowel,language) %>% 
   summarize(f2_mean = mean(f2_cent)) %>% 
   pivot_wider(names_from = language,
@@ -207,7 +214,7 @@ f2_mean <- f%>%
 ### TL mean
 
 ``` r
-tl_mean <- f%>% 
+tl_mean <- vowels%>% 
   group_by(vowel,language) %>% 
   summarize(tl_mean = mean(tl)) %>% 
   pivot_wider(names_from = language,
@@ -221,7 +228,7 @@ tl_mean <- f%>%
 ## 1. Trajectory Length as a function of vowel and language
 
 ``` r
-f %>% 
+vowels %>% 
   ggplot(.,aes(x=tl, y=vowel, color=language))+
   geom_point()
 ```
@@ -231,7 +238,7 @@ f %>%
 ## 2. F1 as a function of vowel and language
 
 ``` r
-f %>% 
+vowels %>% 
   ggplot(.,aes(x=f1_cent, y=vowel, color=language))+
   geom_point()
 ```
@@ -241,7 +248,7 @@ f %>%
 ## 3. F2 as a function of vowel and language
 
 ``` r
-f %>% 
+vowels %>% 
   ggplot(.,aes(x=f2_cent, y=vowel, color=language))+
   geom_point()
 ```
@@ -250,7 +257,17 @@ f %>%
 
 ## 4. (Attempt at) Plotting trajectory length in F1/F2 vowel space
 
-f %&gt;% ggplot(., aes(x = f1\_cent, y = f2\_cent, color = tl, shape =
-language)) + geom\_point(alpha = 0.2) + geom\_text(data = f\_calc,
-aes(label = vowel), size = 5) + scale\_y\_reverse() +
-scale\_x\_reverse()
+\`{r} bonus\_data&lt;-select(my\_data,-id, - item) %&gt;%
+group\_by(vowel, language) %&gt;% summarize(f1\_20=mean(f1\_20),
+f1\_35=mean(f1\_35), f1\_50=mean(f1\_50), f1\_65=mean(f1\_65),
+f1\_80=mean(f1\_80), f2\_20=mean(f2\_20), f2\_35=mean(f2\_35),
+f2\_50=mean(f2\_50), f2\_65=mean(f2\_65), f2\_80=mean(f2\_80),
+tl=mean(tl)) %&gt;%
+
+bonus&lt;-bonus\_data %&gt;% pivot\_longer(cols = c (“f1\_20”, “f1\_35”,
+“f1\_50”, “f1\_65”, “f1\_80”, “f2\_20”, “f2\_35”, “f2\_50”, “f2\_65”,
+“f2\_80”), names\_to = “measurement”, values\_to = “value”) %&gt;%
+bonus\_data %&gt;% ggplot(., aes( x = tl, y = f1\_20, color=vowel,
+shape=language)) + geom\_point(alpha = 0.2) + geom\_text(data =
+bonus\_data, aes(label = vowel), size = 5) + scale\_y\_reverse() +
+scale\_x\_reverse() \`
