@@ -91,9 +91,11 @@ type of script we used for pa3 might make more sense. But, if we were to
 have different participants produce the same data, a script like the one
 for pa2 might make more sense, because then we could compare the
 segmented data across participants (e.g., look at everyone’s production
-of the vowel “a” in *casa*). Ultimately, not sure if these are actual
-advantages or disavantages, but these are some of the things I can think
-of. \# Load and read vowel data
+of the vowel “a” in *casa*). Ultimately, I’m not sure if these are
+actual advantages or disadvantages, but these are some of the things I
+can think of.
+
+# Load and read vowel data
 
 ``` r
 here("data")
@@ -257,17 +259,50 @@ vowels %>%
 
 ## 4. (Attempt at) Plotting trajectory length in F1/F2 vowel space
 
-\`{r} bonus\_data&lt;-select(my\_data,-id, - item) %&gt;%
-group\_by(vowel, language) %&gt;% summarize(f1\_20=mean(f1\_20),
-f1\_35=mean(f1\_35), f1\_50=mean(f1\_50), f1\_65=mean(f1\_65),
-f1\_80=mean(f1\_80), f2\_20=mean(f2\_20), f2\_35=mean(f2\_35),
-f2\_50=mean(f2\_50), f2\_65=mean(f2\_65), f2\_80=mean(f2\_80),
-tl=mean(tl)) %&gt;%
+``` r
+bonus_data <- select(my_data,-id, - item, -tl) %>% 
+  group_by(vowel, language) %>% 
+  summarize(f1_20=mean(f1_20), f1_35=mean(f1_35), f1_50=mean(f1_50),
+            f1_65=mean(f1_65), f1_80=mean(f1_80), f2_20=mean(f2_20),
+            f2_35=mean(f2_35), f2_50=mean(f2_50),
+            f2_65=mean(f2_65), f2_80=mean(f2_80))
+```
 
-bonus&lt;-bonus\_data %&gt;% pivot\_longer(cols = c (“f1\_20”, “f1\_35”,
-“f1\_50”, “f1\_65”, “f1\_80”, “f2\_20”, “f2\_35”, “f2\_50”, “f2\_65”,
-“f2\_80”), names\_to = “measurement”, values\_to = “value”) %&gt;%
-bonus\_data %&gt;% ggplot(., aes( x = tl, y = f1\_20, color=vowel,
-shape=language)) + geom\_point(alpha = 0.2) + geom\_text(data =
-bonus\_data, aes(label = vowel), size = 5) + scale\_y\_reverse() +
-scale\_x\_reverse() \`
+    ## `summarise()` has grouped output by 'vowel'. You can override using the `.groups` argument.
+
+``` r
+bonus<-bonus_data %>%
+   pivot_longer(cols = c ("f1_20", "f1_35", "f1_50", "f1_65", "f1_80"), 
+                 names_to = "F1", values_to = "value") %>% 
+  separate(col=F1, into=c("f1", "time"), sep = "_") %>% 
+  pivot_wider(names_from = f1, values_from = value) %>% 
+  pivot_longer(cols = c ("f2_20", "f2_35", "f2_50", "f2_65", "f2_80"), 
+                 names_to = "F2", values_to = "value") %>% 
+  separate(col=F2, into=c("f2", "time"), sep = "_") %>% 
+  pivot_wider(names_from = f2, values_from = value)
+  
+bonus %>%  
+  ggplot(., aes(x = f2, y = f1, color=vowel, shape=language)) + 
+  geom_point(alpha = 2) +
+  geom_text(data = bonus, aes(label = vowel), size = 2) + 
+    scale_y_reverse() + 
+  scale_x_reverse()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+I ended up with the plot above; not sure if it works though. Also, I
+tried to connect the points in the plot with geom\_line and it looks
+like this (which is kind of difficult to interpret and look at, so I
+probably missed a step or something):
+
+``` r
+bonus %>%  
+  ggplot(., aes(x = f2, y = f1, color=vowel, shape=language)) + 
+  geom_point(alpha = 2) + geom_line()+
+  geom_text(data = bonus, aes(label = vowel), size = 2) + 
+    scale_y_reverse() + 
+  scale_x_reverse()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->

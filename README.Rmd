@@ -109,22 +109,40 @@ vowels %>%
 
 ## 4. (Attempt at) Plotting trajectory length in F1/F2 vowel space
 
-`{r}
-bonus_data<-select(my_data,-id, - item) %>% 
+```{r}
+bonus_data <- select(my_data,-id, - item, -tl) %>% 
   group_by(vowel, language) %>% 
   summarize(f1_20=mean(f1_20), f1_35=mean(f1_35), f1_50=mean(f1_50),
             f1_65=mean(f1_65), f1_80=mean(f1_80), f2_20=mean(f2_20),
             f2_35=mean(f2_35), f2_50=mean(f2_50),
-            f2_65=mean(f2_65), f2_80=mean(f2_80), tl=mean(tl)) %>% 
+            f2_65=mean(f2_65), f2_80=mean(f2_80))
 
 bonus<-bonus_data %>%
-    pivot_longer(cols = c ("f1_20", "f1_35", "f1_50", "f1_65", "f1_80", 
-                           "f2_20", "f2_35", "f2_50", "f2_65", "f2_80"), 
-                 names_to = "measurement", values_to = "value") %>% 
-  bonus_data %>% 
-  ggplot(., aes( x = tl, y = f1_20, color=vowel, shape=language)) + 
-  geom_point(alpha = 0.2) + 
-  geom_text(data = bonus_data, aes(label = vowel), size = 5) + 
+   pivot_longer(cols = c ("f1_20", "f1_35", "f1_50", "f1_65", "f1_80"), 
+                 names_to = "F1", values_to = "value") %>% 
+  separate(col=F1, into=c("f1", "time"), sep = "_") %>% 
+  pivot_wider(names_from = f1, values_from = value) %>% 
+  pivot_longer(cols = c ("f2_20", "f2_35", "f2_50", "f2_65", "f2_80"), 
+                 names_to = "F2", values_to = "value") %>% 
+  separate(col=F2, into=c("f2", "time"), sep = "_") %>% 
+  pivot_wider(names_from = f2, values_from = value)
+  
+bonus %>%  
+  ggplot(., aes(x = f2, y = f1, color=vowel, shape=language)) + 
+  geom_point(alpha = 2) +
+  geom_text(data = bonus, aes(label = vowel), size = 2) + 
     scale_y_reverse() + 
   scale_x_reverse()
-`
+```
+
+I ended up with the plot above; not sure if it works though.
+Also, I tried to connect the points in the plot with geom_line and it looks like this (which is kind of difficult to interpret and look at, so I probably missed a step or something):
+
+```{r}
+bonus %>%  
+  ggplot(., aes(x = f2, y = f1, color=vowel, shape=language)) + 
+  geom_point(alpha = 2) + geom_line()+
+  geom_text(data = bonus, aes(label = vowel), size = 2) + 
+    scale_y_reverse() + 
+  scale_x_reverse()
+```
